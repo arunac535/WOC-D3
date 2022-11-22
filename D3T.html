@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<title>D3</title>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        circle {
+            fill: rgb(23, 9, 174);
+        }
+
+        path {
+            fill: none;
+            stroke: crimson;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script>
+        //passing non hirearchial data
+        var svg = d3.select("body").append("svg").attr("width", 600).attr("height", 600).append("g").attr("transform", "translate(50,50)")
+        var data = [{ "child": "GrandGoten", "parent": "" },
+        { "child": "goku", "parent": "GrandGoten" },
+        { "child": "gohan", "parent": "goku" },
+        { "child": "trunks", "parent": "vegeta" },
+        { "child": "goten", "parent": "goku" },
+        { "child": "bulla", "parent": "vegeta" },
+        { "child": "vegeta", "parent": "GrandGoten" },
+        { "child": "vidal", "parent": "gohan" }
+
+        ];
+        var datastructure = d3.stratify()
+        .id(function (d) { return d.child; })
+        .parentId(function (d) { return d.parent; })(data);
+        var treeStructure = d3.tree().size([500, 300]);
+        //inputing the values in datastructure to tree
+        var information = treeStructure(datastructure);
+        console.log(information.descendants());
+        console.log(information.links());
+
+        var circle = svg.append("g")
+        .selectAll("circle")
+        .data(information
+        .descendants());
+
+        //creating a circle for each individual node
+        circle.enter()
+        .append("circle")
+        .attr("cx", function (d) { return d.x; })
+        .attr("cy", function (d) { return d.y; })
+        .attr("r", 7);
+
+
+
+        var connections = svg.append("g").selectAll("path").data(information.links());
+        
+        
+        connections.enter()
+        .append("path")
+        .attr("d", function (d) { return "M" + d.source.x + "," + d.source.y + "C" + d.target.x + "," 
+        + (d.source.y + d.target.y) / 2 + " " + d.target.x + "," + (d.source.y + d.target.y) / 2 + " " + d.target.x + "," + d.target.y; })
+
+
+        var names = svg.append("g").selectAll("text").data(information.descendants());
+        names.enter().append("text").text(function (d) { return d.data.child; }).attr("x", function (d) { return d.x + 5; })
+        .attr("y", function (d) { return d.y + 2; })
+    </script>
+
+
+</body>
+
+</html>
